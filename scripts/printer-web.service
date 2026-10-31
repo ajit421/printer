@@ -1,0 +1,16 @@
+[Unit]
+Description=GlassyPrint Hub Web Service
+After=network.target cups.service
+Wants=cups.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Printer/web_app
+ExecStart=/usr/bin/python3 /home/pi/Printer/web_app/app.py
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

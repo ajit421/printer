@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+web_app/uploads/*
+!web_app/uploads/.gitkeep
+!web_app/uploads/thumbnails/.gitkeep
+.vscode/
+.idea/
