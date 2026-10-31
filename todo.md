@@ -62,10 +62,28 @@ Follow this checklist step-by-step. Check off each box (`- [x]`) as you complete
 
 ---
 
-## 🌐 Phase 2: Global Remote Printing (Print from Anywhere via 4G/5G)
-- [ ] Install Cloudflare Tunnel (`cloudflared`) on the Pi.
-- [ ] Launch free public HTTPS tunnel.
-- [ ] Open URL on phone over mobile data and test print!
+## 🌐 Phase 2: Run 24/7 & Global Remote Printing — [COMPLETED 🎉]
+- [x] Configured systemd background service `printer-web.service` (runs on boot).
+- [x] Installed Cloudflare Tunnel (`cloudflared`) on Raspberry Pi 4.
+- [x] Verified mobile HTTPS tunnel: `https://generating-soma-liberty-perfume.trycloudflare.com`.
+- [x] Successfully printed full-color photo (`comp.jpg`) from web app!
+- [ ] Make Cloudflare Tunnel run automatically in background on boot.
+
+---
+
+## ⚡ Phase 3: Transition to Low-Power & Cost-Saving (Next Step)
+
+### Option A: The $15 Raspberry Pi Zero 2 W (Recommended)
+- [ ] Free up your expensive $60 Raspberry Pi 4 for other projects.
+- [ ] Take the exact MicroSD card out of the Pi 4 and insert it into a Pi Zero 2 W.
+- [ ] Connect the Brother printer using your official Raspberry Pi Micro-USB OTG cable.
+- [ ] Instant 0.5 Watt power consumption (costs less than $1/year in electricity).
+
+### Option B: ESP32 Smart Auto-Power Controller
+- [ ] Connect your ESP32 DEVKITV1 to a 5V relay module on the AC mains.
+- [ ] ESP32 stays connected to Wi-Fi at 0.05 Watts.
+- [ ] When a print request arrives, ESP32 energizes the relay to boot the printer & Pi.
+- [ ] Automatically cuts power after 10 minutes of idle time (0W idle standby power).
 
 ---
 
