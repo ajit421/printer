@@ -192,8 +192,17 @@ def print_document():
     if not file_path.exists():
         return jsonify({"error": "File not found on server"}), 404
 
-    # Options
-    printer_name = data.get("printer_name", "Brother_DCP-T236")
+    # Auto-detect real CUPS printer name
+    printers = get_cups_printers()
+    available_names = [p["name"] for p in printers if p.get("name") and "Simulated" not in p["name"]]
+    
+    printer_name = data.get("printer_name")
+    if not printer_name or (available_names and printer_name not in available_names):
+        if available_names:
+            printer_name = available_names[0]
+        else:
+            printer_name = "Brother_DCP_T236"
+
     color_mode = data.get("color_mode", "color")  # "color" or "monochrome"
     copies = int(data.get("copies", 1))
     media_size = data.get("media_size", "A4")     # "A4", "Letter", "4x6"
@@ -206,17 +215,15 @@ def print_document():
 
     if is_linux():
         # Build CUPS `lp` command
-        cmd = ["lp"]
-        if printer_name and not "Simulated" in printer_name:
-            cmd.extend(["-d", printer_name])
-        cmd.extend(["-n", str(copies)])
-        cmd.extend(["-o", f"media={media_size}"])
+        cmd = ["lp", "-d", printer_name, "-n", str(copies)]
+        if media_size:
+            cmd.extend(["-o", f"media={media_size}"])
         
-        # Color option
+        # Color option (IPP Everywhere standard)
         if color_mode == "monochrome":
-            cmd.extend(["-o", "ColorModel=Gray", "-o", "print-color-mode=monochrome"])
+            cmd.extend(["-o", "print-color-mode=monochrome"])
         else:
-            cmd.extend(["-o", "ColorModel=Color", "-o", "print-color-mode=color"])
+            cmd.extend(["-o", "print-color-mode=color"])
             
         # Orientation (3 = Portrait, 4 = Landscape)
         if orientation == "landscape":
@@ -232,10 +239,12 @@ def print_document():
 
         try:
             res = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            # Output is usually: "request id is Brother_DCP-T236-42 (1 file(s))"
             out = res.stdout.strip()
             if "request id is " in out:
                 cups_job_id = out.split("request id is ")[1].split()[0]
+        except subprocess.CalledProcessError as e:
+            err_details = e.stderr.strip() or e.stdout.strip() or str(e)
+            return jsonify({"error": f"CUPS error: {err_details}"}), 500
         except Exception as e:
             return jsonify({"error": f"Failed to submit print job to CUPS: {e}"}), 500
     else:
@@ -305,3 +314,4 @@ if __name__ == "__main__":
     print(" Press Ctrl+C to terminate.")
     print("=" * 65)
     app.run(host=host, port=port, debug=True)
+

@@ -180,6 +180,7 @@ btnPrint.addEventListener('click', async () => {
   const mediaSize = document.getElementById('media_size').value;
   const orientation = document.querySelector('input[name="orientation"]:checked').value;
   const pageRange = document.getElementById('page_range').value;
+  const printerName = selectedPrinterBadge.textContent.trim() || 'Brother_DCP_T236';
 
   btnPrint.disabled = true;
   btnPrint.innerHTML = '<span>Sending to Spooler...</span>';
@@ -191,6 +192,7 @@ btnPrint.addEventListener('click', async () => {
       body: JSON.stringify({
         filename: currentUploadedFile.saved_filename,
         display_name: currentUploadedFile.original_name,
+        printer_name: printerName,
         color_mode: colorMode,
         copies: copies,
         media_size: mediaSize,
@@ -319,3 +321,4 @@ fetchStatus();
 fetchJobs();
 setInterval(fetchJobs, 3000);
 setInterval(fetchStatus, 10000);
+
