@@ -16,6 +16,8 @@ from flask import Flask, render_template, request, jsonify, send_from_directory,
 from werkzeug.utils import secure_filename
 from PIL import Image
 
+from PIL import Image, ImageOps
+
 try:
     import pypdfium2 as pdfium
     HAS_PDFIUM = True
@@ -37,6 +39,32 @@ ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "txt", "docx"}
 
 # In-memory job tracker for real-time tracking
 JOBS = []
+
+def image_to_printable_pdf(img_path, output_pdf_path, is_landscape=False, is_grayscale=False):
+    """Converts images into a clean, centered A4 PDF document suitable for CUPS printing."""
+    with Image.open(img_path) as im:
+        try:
+            im = ImageOps.exif_transpose(im)
+        except Exception:
+            pass
+            
+        if is_grayscale:
+            im = im.convert('L').convert('RGB')
+        else:
+            im = im.convert('RGB')
+            
+        # Standard A4 at 300 DPI
+        pw, ph = (3508, 2480) if is_landscape else (2480, 3508)
+        canvas = Image.new('RGB', (pw, ph), (255, 255, 255))
+        
+        # Scale to fit with margins (100px margins on all sides)
+        target_w, target_h = pw - 200, ph - 200
+        im.thumbnail((target_w, target_h), Image.Resampling.LANCZOS)
+        
+        offset_x = (pw - im.width) // 2
+        offset_y = (ph - im.height) // 2
+        canvas.paste(im, (offset_x, offset_y))
+        canvas.save(output_pdf_path, 'PDF', resolution=300.0)
 
 def is_linux():
     return platform.system() == "Linux"
@@ -209,6 +237,21 @@ def print_document():
     orientation = data.get("orientation", "portrait") # "portrait" or "landscape"
     page_range = data.get("page_range", "").strip()
 
+    # Auto-convert image files (JPG/PNG) to standard printable A4 PDF
+    target_print_file = file_path
+    if file_path.suffix.lower() in [".jpg", ".jpeg", ".png"]:
+        pdf_converted = UPLOAD_FOLDER / f"{file_path.stem}_print.pdf"
+        try:
+            image_to_printable_pdf(
+                file_path,
+                pdf_converted,
+                is_landscape=(orientation == "landscape"),
+                is_grayscale=(color_mode == "monochrome")
+            )
+            target_print_file = pdf_converted
+        except Exception as conv_err:
+            print(f"[-] Image to PDF conversion failed, falling back to raw: {conv_err}")
+
     job_id = f"JOB-{int(time.time())}-{uuid.uuid4().hex[:4].upper()}"
     cups_job_id = None
     exec_cmd = []
@@ -234,7 +277,7 @@ def print_document():
         if page_range:
             cmd.extend(["-P", page_range])
 
-        cmd.append(str(file_path))
+        cmd.append(str(target_print_file))
         exec_cmd = cmd
 
         try:
