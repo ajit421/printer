@@ -7,38 +7,65 @@ Follow this checklist step-by-step. Check off each box (`- [x]`) as you complete
 ## 🎯 Phase 1: Raspberry Pi 4 Setup (Local Wi-Fi Print Server)
 
 ### Step 1: Flash the MicroSD Card
-- [ ] Insert the **SanDisk Ultra MicroSD card** (32GB or 64GB) into your PC using a card reader.
-- [ ] Open **Raspberry Pi Imager** ([Download here](https://www.raspberrypi.com/software/)).
-- [ ] **Choose Device**: `Raspberry Pi 4`.
-- [ ] **Choose OS**: `Raspberry Pi OS (other)` ➔ `Raspberry Pi OS Lite (64-bit)`.
-- [ ] **Choose Storage**: Select your SanDisk MicroSD card.
-- [ ] Click **Next** and click **Edit Settings**:
-  - [ ] Set Hostname: `printserver`
-  - [ ] Set Username: `pi` and enter a password you will remember.
-  - [ ] Check **Configure wireless LAN**: Enter your Wi-Fi name (SSID) and Password.
-  - [ ] Go to **Services** tab ➔ Check **Enable SSH** (Use password authentication).
-- [ ] Click **Save** and **Yes** to write. Wait until verification completes.
+- [x] Insert the **SanDisk Ultra MicroSD card** (32GB or 64GB) into your PC using a card reader.
+- [x] Open **Raspberry Pi Imager** ([Download here](https://www.raspberrypi.com/software/)).
+- [x] **Choose Device**: `Raspberry Pi 4`.
+- [x] **Choose OS**: `Raspberry Pi OS (other)` ➔ `Raspberry Pi OS Lite (64-bit)`.
+- [x] **Choose Storage**: Select your SanDisk MicroSD card.
+- [x] Click **Next** and click **Edit Settings**:
+  - [x] Set Hostname: `Pi`
+  - [x] Set Username: `pi` and enter a password you will remember.
+  - [x] Check **Configure wireless LAN**: Enter your Wi-Fi name (SSID) and Password.
+  - [x] Go to **Services** tab ➔ Check **Enable SSH** (Use password authentication).
+- [x] Click **Save** and **Yes** to write. Wait until verification completes.
 
 ---
 
-### Step 2: Physical Connections
-- [ ] Eject the MicroSD card from your PC and insert it into the **Raspberry Pi 4** underside slot ([photo](file:///d:/Desktop/Printer/images/02_raspberry_pi/02_raspberry_pi_4b_bottom_sandisk_32gb.jpg)).
-- [ ] Connect the **USB-A to USB-B printer cable** ([photo](file:///d:/Desktop/Printer/images/04_cables_adapters/02_usba_to_usbb_printer_cable_full.jpg)):
-  - Square USB-B plug ➔ Brother DCP-T236 rear port.
-  - Flat USB-A plug ➔ Raspberry Pi 4 black USB 2.0 port.
-- [ ] Turn ON the **Brother DCP-T236** printer.
-- [ ] Plug in the USB-C power supply (5V 3A or Portronics power bank) to the Raspberry Pi 4.
-- [ ] Wait 60–90 seconds for the Pi to boot and join your Wi-Fi network.
+### Step 2: Physical Connections & First Boot
+- [x] Eject the MicroSD card from your PC and insert it into the **Raspberry Pi 4** underside slot.
+- [x] Plug in the USB-C power supply (Portronics power bank) to the Raspberry Pi 4.
+- [x] Pi booted and joined Wi-Fi (connected via Raspberry Pi Connect).
+- [x] Connect the **USB-A to USB-B printer cable** to Brother DCP-T236 and Pi 4.
+- [x] Turn ON the **Brother DCP-T236** printer.
+- [x] Verified in terminal: `Bus 001 Device 003: ID 04f9:071c Brother Industries, Ltd DCP-T236`.
+- [x] Raspberry Pi IP address identified: `192.168.1.64`.
 
 ---
 
-### Step 3: Connect via SSH
-- [ ] Open PowerShell or Command Prompt on your PC and run:
-  ```powershell
-  ssh pi@printserver.local
-  ```
-  *(If `printserver.local` does not resolve, check your home router admin page for the Pi's IP address, e.g., `ssh pi@192.168.1.50`).*
-- [ ] Type your password when prompted and press Enter.
+### Step 3: Terminal Access & Driver Installation
+- [x] Raspberry Pi Connect Remote Shell active in browser.
+- [x] CUPS, `printer-driver-brlaser`, and Python dependencies installed.
+- [x] Fixed `usblp` kernel conflict.
+- [x] Printer detected by CUPS: `usb://Brother/DCP-T236?serial=E83666B6H322824`.
+
+---
+
+### Step 4: Add Brother DCP-T236 in CUPS
+- [x] In CUPS Web UI, added **Brother DCP-T236** under Local Printers.
+- [x] Set name: `Brother_DCP_T236`.
+- [x] Enabled printer sharing.
+- [x] Set default options (A4, 600 DPI, Color RGB).
+- [x] Printer Status: **Brother_DCP_T236 (Idle, Accepting Jobs, Shared)**!
+- [x] Connected to native driverless IPP-over-USB port: `ipp://localhost:60000/ipp/print`.
+- [x] Printed official CUPS test page (`pwgrast.ppd` full color wheels).
+
+---
+
+### Step 5: Transfer & Launch GlassyPrint Web Hub
+- [x] Transferred `web_app` to Pi from Windows via SCP.
+- [x] Launched `python3 /home/pi/web_app/app.py`.
+- [x] Opened `http://192.168.1.64:5000` in browser.
+- [x] GlassyPrint Hub UI loaded successfully: `Brother_DCP_T236 • Idle / Ready`!
+- [x] Uploaded document and clicked **Dispatch Print Job**.
+- [x] **Physically verified printing on Brother DCP-T236! (100% SUCCESS!)** 🎉
+- [ ] Configure auto-start on boot as a background service.
+
+---
+
+## 🌐 Phase 2: Global Remote Printing (Print from Anywhere via 4G/5G)
+- [ ] Install Cloudflare Tunnel (`cloudflared`) on the Pi.
+- [ ] Launch free public HTTPS tunnel.
+- [ ] Open URL on phone over mobile data and test print!
 
 ---
 
@@ -158,3 +185,4 @@ Keep the Raspberry Pi, but use the **ESP32 DEVKITV1** to eliminate 24/7 standby 
 - [docs/GLOBAL_PRINTING_AND_ESP32_ANALYSIS.md](file:///d:/Desktop/Printer/docs/GLOBAL_PRINTING_AND_ESP32_ANALYSIS.md) - Deep technical analysis of ESP32 vs Pi Zero 2 W
 - [docs/PRINTER_SPECS_AND_MAINTENANCE.md](file:///d:/Desktop/Printer/docs/PRINTER_SPECS_AND_MAINTENANCE.md) - Printhead cleaning & maintenance procedures
 - [web_app/](file:///d:/Desktop/Printer/web_app/) - GlassyPrint Hub Web Application
+
