@@ -7,3 +7,4 @@ web_app/uploads/*
 !web_app/uploads/thumbnails/.gitkeep
 .vscode/
 .idea/
+

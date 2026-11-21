@@ -92,3 +92,4 @@ sequenceDiagram
 
 3. **Make it Permanent with a Custom Domain (Optional)**:
    * If you own a domain (e.g. `yourname.com`), you can bind it permanently to `print.yourname.com` using Cloudflare Zero Trust with Google/Email OTP authentication for maximum security.
+

@@ -3,3 +3,4 @@
 cd "$(dirname "$0")"
 echo "Starting GlassyPrint Hub on port 5000..."
 python3 app.py
+
