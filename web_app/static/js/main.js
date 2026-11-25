@@ -254,13 +254,13 @@ function renderJobs(jobs) {
       <div class="job-info">
         <div class="job-name">${escapeHtml(job.display_name || job.filename)}</div>
         <div class="job-subtext">
-          ${job.copies} copy (${job.media_size}, ${job.color_mode}) • Submitted at ${job.submitted_at}
+          ${escapeHtml(job.copies)} copy (${escapeHtml(job.media_size)}, ${escapeHtml(job.color_mode)}) • Submitted at ${escapeHtml(job.submitted_at)}
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="job-status-pill ${job.status}">${job.status}</span>
+        <span class="job-status-pill ${escapeHtml(job.status)}">${escapeHtml(job.status)}</span>
         ${job.status === 'Printing' ? `
-          <button class="glass-btn btn-sm" onclick="cancelJob('${job.id}')" title="Cancel print job">Cancel</button>
+          <button class="glass-btn btn-sm" data-job-id="${escapeHtml(job.id)}" title="Cancel print job">Cancel</button>
         ` : ''}
       </div>
     `;
@@ -310,8 +310,14 @@ globalModal.addEventListener('click', (e) => {
 
 btnRefreshJobs.addEventListener('click', fetchJobs);
 
+// Cancel buttons are re-rendered every poll, so delegate from the list
+queueList.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-job-id]');
+  if (btn) cancelJob(btn.dataset.jobId);
+});
+
 function escapeHtml(str) {
-  return str.replace(/[&<>'"]/g, 
+  return String(str ?? '').replace(/[&<>'"]/g, 
     tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
   );
 }
